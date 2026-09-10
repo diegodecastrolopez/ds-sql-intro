@@ -565,13 +565,61 @@ Explore all tables in the schema **introduction** and use SQL to:
 - Get all cases for women
 - Get all cases for men between 20 and 50
 
+SELECT * 
+FROM record 
+WHERE id_gender = 2
+
+SELECT * 
+FROM record
+WHERE id_gender = 1
+AND id_age_bucket BETWEEN 4 AND 6;
+
 ### Exercise 2
 
 Let us now get some more information by joining tables together. Use SQL to:
 
+
 + Get all cases for women (including gender names)
+
+SELECT r.id,
+       r.record_date, 
+       r.cases,
+       g.name AS gender_name
+FROM record AS r    
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE g.id = 2;
+
+
 + Get all cases for women (including gender names AND age_bucket names)
+
+SELECT r.id,
+       r.record_date, 
+       r.cases,
+       g.name AS gender_name,
+       a.range
+FROM record AS r    
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id
+WHERE g.id = 2;
+
 + Get all cases for men between 20 AND 50 including gender names AND age_bucket names
+
+SELECT r.id,
+       r.record_date, 
+       r.cases,
+       g.name AS gender_name,
+       a.range
+FROM record AS r    
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id
+WHERE g.id = 1 AND
+      a.id BETWEEN 4 AND 6;
+
 
 ### Exercise 3
 
@@ -579,18 +627,85 @@ Let us now get some more information by joining tables together. Use SQL to:
 - ... AND also BY date (extra)
 - Get all cases for men between 20 AND 50, ORDER them BY record_date DESCending
 
+SELECT r.id,
+       r.cases,
+       g.name,
+       a.range
+FROM RECORD AS r
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id 
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE r.id_gender = 2
+ORDER BY a.RANGE ASC;
+
+SELECT r.id,
+       r.cases,
+       r.record_date, 
+       g.name,
+       a.range
+FROM RECORD AS r
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id 
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE r.id_gender = 2
+ORDER BY a.RANGE ASC, r.record_date;
+
+SELECT r.id,
+       r.cases,
+       r.record_date, 
+       g.name,
+       a.range
+FROM RECORD AS r
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id 
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE r.id_gender = 1 AND r.id_age_bucket BETWEEN 4 AND 6
+ORDER BY  r.record_date DESC;
+
 ### Exercise 4
 
 - Get average number of cases for women
 - Get maximum number of cases for men
 
+SELECT g.name,
+       AVG(r.cases)
+FROM RECORD AS r
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE r.id_gender = 2
+GROUP BY g.name;
+
+SELECT g.name,
+       MAX(r.cases)
+FROM RECORD AS r
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+WHERE r.id_gender = 1
+GROUP BY g.name;
+
 ### Exercise 5
 
-- Get sum of cases per gender per age GROUP
+SELECT g.name,
+       a.range,
+       SUM(r.cases) AS Total_cases
+FROM RECORD AS r
+LEFT JOIN age_bucket AS a
+ON r.id_age_bucket = a.id 
+LEFT JOIN gender AS g
+ON r.id_gender = g.id
+GROUP BY g.name, a.RANGE;
 
 ### Exercise 6
 - Get all the dates with more then 80,000 cases.
 
+SELECT r.record_date,
+       SUM(r.cases)
+FROM record AS r
+GROUP BY r.record_date
+HAVING SUM(r.cases) > 80000;
 
 ## References & Further Reading
 
